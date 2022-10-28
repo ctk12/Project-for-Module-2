@@ -69,6 +69,9 @@ function App() {
     undefined
   );
   // create state variable for New keypair generate
+  const [recoverkeyin, setRecoverkeyin] = useState("");
+  const [showrecovertext, setShowrecovertext] = useState("Show recover key");
+  const [recoverkey, setRecoverkey] = useState("*****");
   const [keypair, setKeypair] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [solbal, setSolbal] = useState(0);
@@ -94,6 +97,17 @@ function App() {
       setLoadmsg("No message");
     }
   };
+   
+  // recover key show
+  const showRecoverkey = async () => {
+    if(showrecovertext === "Hide recover key"){
+      setRecoverkey("*****");
+      setShowrecovertext("Show recover key");
+    }else{
+      setRecoverkey(JSON.parse(keypair).reverse().join("-"));
+      setShowrecovertext("Hide recover key");
+    }
+  }
 
   //get Balance
   const getWalletBalance = async () => {
@@ -101,7 +115,7 @@ function App() {
     try {
       // Connect to the Devnet
       const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-      console.log("Connection object is:", connection);
+      //console.log("Connection object is:", connection);
       // get its balance
       const walletBalance = await connection.getBalance(
         new PublicKey(publicKey)
@@ -109,9 +123,9 @@ function App() {
       const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
       setSolbal(solbal);
       loadV("off");
-      console.log(
-        `Wallet balance: ${parseInt(walletBalance) / LAMPORTS_PER_SOL} SOL`
-      );
+      // console.log(
+      //   `Wallet balance: ${parseInt(walletBalance) / LAMPORTS_PER_SOL} SOL`
+      // );
     } catch (err) {
       console.log(err);
     }
@@ -120,13 +134,14 @@ function App() {
 
   const makeAirdrop = async () => {
     loadV("on");
+    try{
     // Connect to the Devnet
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-    console.log("Connection object is:", connection);
+    //console.log("Connection object is:", connection);
     // Request airdrop of 2 SOL to the wallet
-    console.log("Airdropping some SOL to my wallet!");
-    var airdropAmount = LAMPORTS_PER_SOL / 1000;
-    console.log(airdropAmount);
+    //console.log("Airdropping some SOL to my wallet!");
+    var airdropAmount = LAMPORTS_PER_SOL * 2;
+    //console.log(airdropAmount);
     const fromAirDropSignature = await connection.requestAirdrop(
       new PublicKey(publicKey),
       airdropAmount
@@ -141,20 +156,26 @@ function App() {
       lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
       signature: fromAirDropSignature,
     });
-    console.log("Airdrop completed for the Sender account");
+    // console.log("Airdrop completed for the Sender account");
     getWalletBalance();
+    alert("Successfully Airdropped 2 SOL");
+    } catch (err) {
+      console.log(err);
+      loadV("off");
+      alert("Error to Airdrop 2 SOL, Try Again!");
+    }
   };
 
-  const airDropgetWalletBalance = async (publicKey1: any) => {
+  const airDropgetWalletBalance = async (publicKey1: any,arrayprivateKey1:any) => {
     loadV("on");
     try {
       // Connect to the Devnet
       const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-      console.log("Connection object is:", connection);
+      // console.log("Connection object is:", connection);
       // Request airdrop of 2 SOL to the wallet
-      console.log("Airdropping some SOL to my wallet!");
+      // console.log("Airdropping some SOL to my wallet!");
       var airdropAmount = LAMPORTS_PER_SOL * 2;
-      console.log(airdropAmount);
+      // console.log(airdropAmount);
       const fromAirDropSignature = await connection.requestAirdrop(
         new PublicKey(publicKey1),
         airdropAmount
@@ -169,18 +190,21 @@ function App() {
         lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
         signature: fromAirDropSignature,
       });
-      console.log("Airdrop completed for the Sender account");
+      // console.log("Airdrop completed for the Sender account");
       // Make a wallet (keypair) from privateKey and get its balance
       const walletBalance = await connection.getBalance(
         new PublicKey(publicKey1)
       );
       const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
       setSolbal(solbal);
-      console.log(
-        `Wallet balance: ${parseInt(walletBalance) / LAMPORTS_PER_SOL} SOL`
-      );
+      setPublicKey(publicKey1);
+      setKeypair(arrayprivateKey1);
+      // console.log(
+      //   `Wallet balance: ${parseInt(walletBalance) / LAMPORTS_PER_SOL} SOL`
+      // );
     } catch (err) {
       console.log(err);
+      loadV("off");
     }
     loadV("off");
     alert("New Solana Account Created And Airdropped 2 SOL");
@@ -189,14 +213,12 @@ function App() {
   // NewKeyPair
   const getNewkeypair = async () => {
     loadV("on");
-    console.log("New keypair is generating!");
+    // console.log("New keypair is generating!");
     const newPair = new Keypair();
     const privateKey = newPair._keypair.secretKey;
     const arrayprivateKey = JSON.stringify(Array.from(privateKey));
-    setKeypair(arrayprivateKey);
     const publicKey = new PublicKey(newPair._keypair.publicKey).toString();
-    setPublicKey(publicKey);
-    airDropgetWalletBalance(publicKey);
+    airDropgetWalletBalance(publicKey,arrayprivateKey);
     // loadV("off");
   };
 
@@ -210,7 +232,7 @@ function App() {
       try {
         // connects wallet and returns response which includes the wallet public key
         const response = await solana.connect();
-        console.log("wallet account ", response.publicKey.toString());
+        // console.log("wallet account ", response.publicKey.toString());
         // update walletKey to be the public key
         setWalletKey(response.publicKey.toString());
         alert("Successfully Connected Wallet");
@@ -263,12 +285,12 @@ function App() {
       } else if (solbal < 2.000005) {
         alert(
           `Invalid SOL, Your Balance is ${solbal}, (Need Extra 0.000005 SOL For Fee)
-          Airdrop 0.001 SOL to your Account`
+          Airdrop 2 SOL to your Account`
         );
         loadV("off");
       } else {
         var sendSol = LAMPORTS_PER_SOL * 2;
-        console.log(typeof sendSol, sendSol);
+        // console.log(typeof sendSol, sendSol);
         var transaction = new Transaction().add(
           SystemProgram.transfer({
             fromPubkey: from.publicKey,
@@ -276,7 +298,7 @@ function App() {
             lamports: sendSol,
           })
         );
-        console.log(transaction);
+        // console.log(transaction);
         // Sign transaction
         var signature = await sendAndConfirmTransaction(
           connection,
@@ -284,24 +306,38 @@ function App() {
           [from]
         );
         setTsignature(
-          `Sent 2 SOL to address ${publicKey} And Signature is ${signature}`
+          `Successfully Sent 2 SOL to address ${publicKey} And Signature is ${signature}`
         );
-        console.log(
-          `Sent 2 SOL to address ${publicKey} And Signature is ${signature}`
-        );
+        // console.log(
+        //   `Sent 2 SOL to address ${publicKey} And Signature is ${signature}`
+        // );
         getWalletBalance();
       }
     }
   };
 
+  const getRecoverAcc = async () => {
+    const extractRekey = recoverkeyin.split("-").reverse();
+    const newextractRekey = [];
+    for(let num of extractRekey){
+      newextractRekey.push(parseInt(num));
+    }
+    const arrnew = new Uint8Array(newextractRekey);
+    setKeypair(JSON.stringify(newextractRekey));
+    alert("Successfully Recovered Your Account Wallet");
+    setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
+    setRecoverkeyin("");
+  }
+
   // HTML code for the app
   return (
     <div className="App">
       <header className="App-header">
+        {!publicKey && (
         <button
           style={{
-            fontSize: "16px",
-            padding: "15px",
+            fontSize: "14px",
+            padding: "14px",
             fontWeight: "bold",
             borderRadius: "5px",
             cursor: "pointer",
@@ -310,6 +346,32 @@ function App() {
         >
           Create a new Solana account
         </button>
+        )}
+        <br/>
+        {!publicKey && (
+        <input style={{
+            width:"300px",
+            fontSize: "12px",
+            padding: "14px",
+            fontWeight: "bold",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }} type="text" value={recoverkeyin} onChange={(e) => setRecoverkeyin(e.target.value)} placeholder="Paste Your Recover Key to access account" />
+        )}
+        {!publicKey && (
+        <button
+          style={{
+            fontSize: "14px",
+            padding: "14px",
+            fontWeight: "bold",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+          onClick={getRecoverAcc}
+        >
+          Recover your account
+        </button>
+        )}
         <p className="fontp">
           {publicKey && `Your New Solana Account Address: ${publicKey}`}
         </p>
@@ -323,9 +385,67 @@ function App() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            onClick={getWalletBalance}
+          >
+            refresh balance
+          </button>
+        )}
+        {publicKey && (
+          <div>
+          <button
+            style={{
+              fontSize: "10px",
+              padding: "10px",
+              fontWeight: "bold",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={showRecoverkey}
+          >
+            {showrecovertext}
+          </button>
+          <p className="fontp">do not share your recover key, copy and save key for recover your wallet and access</p>
+          </div>
+        )}
+        {publicKey && (
+          <p
+            style={{
+              fontSize: "10px",
+              padding: "10px",
+              fontWeight: "bold",
+              borderRadius: "5px",
+              border:"2px solid skyblue",
+            }}
+          >
+            {recoverkey}
+          </p>
+        )}
+        {publicKey && (
+          <button
+            style={{
+              fontSize: "10px",
+              padding: "10px",
+              fontWeight: "bold",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
             onClick={makeAirdrop}
           >
-            Airdrop 0.001 SOL
+            Airdrop 2 SOL
+          </button>
+        )}
+        {publicKey && (
+          <button
+            style={{
+              fontSize: "10px",
+              padding: "10px",
+              fontWeight: "bold",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={()=>{let getRe = window.confirm("Are you sure to logout. copy your recover key before logout, Otherwise you will not access to wallet again");if(getRe === true){setPublicKey("")}}}
+          >
+            Logout
           </button>
         )}
         <br />
