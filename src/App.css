@@ -23,6 +23,22 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+.App-header1 {
+  background-color: whitesmoke;
+  min-height: 1vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 1vmin);
+  color: blueviolet;
+  z-index: 10;
+  padding: 5px;
+}
+
+.fontp {
+  font-size: calc(10px + 1vmin);
+}
 
 .App-link {
   color: #61dafb;
