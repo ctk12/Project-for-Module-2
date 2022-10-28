@@ -110,7 +110,7 @@ function App() {
   }
 
   //get Balance
-  const getWalletBalance = async (publicKey1 = publicKey) => {
+  const getWalletBalance = async () => {
     loadV("on");
     try {
       // Connect to the Devnet
@@ -323,11 +323,12 @@ function App() {
       newextractRekey.push(parseInt(num));
     }
     const arrnew = new Uint8Array(newextractRekey);
-    setKeypair(JSON.stringify(newextractRekey));
+    //setKeypair(JSON.stringify(newextractRekey));
     alert("Successfully Recovered Your Account Wallet");
-    setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
+    //setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
-    getWalletBalance(Keypair.fromSecretKey(arrnew).publicKey);
+    airDropgetWalletBalance(Keypair.fromSecretKey(arrnew).publicKey,JSON.stringify(newextractRekey));
+    //getWalletBalance(Keypair.fromSecretKey(arrnew).publicKey);
   }
 
   // HTML code for the app
