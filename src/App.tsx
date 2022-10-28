@@ -110,7 +110,7 @@ function App() {
   }
 
   //get Balance
-  const getWalletBalance = async () => {
+  const getWalletBalance = async (publicKey1 = publicKey) => {
     loadV("on");
     try {
       // Connect to the Devnet
@@ -118,7 +118,7 @@ function App() {
       //console.log("Connection object is:", connection);
       // get its balance
       const walletBalance = await connection.getBalance(
-        new PublicKey(publicKey)
+        new PublicKey(publicKey1)
       );
       const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
       setSolbal(solbal);
@@ -327,7 +327,7 @@ function App() {
     alert("Successfully Recovered Your Account Wallet");
     setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
-    getWalletBalance();
+    getWalletBalance(Keypair.fromSecretKey(arrnew).publicKey);
   }
 
   // HTML code for the app
