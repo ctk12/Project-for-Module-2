@@ -324,10 +324,10 @@ function App() {
     }
     const arrnew = new Uint8Array(newextractRekey);
     setKeypair(JSON.stringify(newextractRekey));
-    getWalletBalance();
     alert("Successfully Recovered Your Account Wallet");
     setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
+    getWalletBalance();
   }
 
   // HTML code for the app
