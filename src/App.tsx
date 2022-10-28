@@ -383,7 +383,7 @@ function App() {
           }}
           onClick={transferSol}
         >
-          Transfer 2 SOL to connected wallet
+          Transfer to new wallet
         </button>
         <p className="fontp">{tsignature}</p>
       </header>
