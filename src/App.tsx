@@ -78,7 +78,6 @@ function App() {
   const [tsignature, setTsignature] = useState("");
   const [loadmsg, setLoadmsg] = useState("No message");
 
-  getWalletBalance();
   // this is the function that runs whenever the component updates (e.g. render, refresh)
   useEffect(() => {
     const provider = getProvider();
