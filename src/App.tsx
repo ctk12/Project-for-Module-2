@@ -263,6 +263,7 @@ function App() {
   const getRecoverAcc = async () => {
     if(recoverkeyin === ""){
       alert("Enter Recover Key");
+      loadV("off");
     }else{
      loadV("on");
     const extractRekey = recoverkeyin.split("-").reverse();
@@ -279,7 +280,7 @@ function App() {
     setRecoverkeyin("");
     setShowrecovertext("Show recover key");
     getWalletBalance(Keypair.fromSecretKey(arrnew).publicKey);
-    }catch(err){alert("Invalid Recover Key");}
+    }catch(err){alert("Invalid Recover Key");loadV("off");}
   }
   };
 
