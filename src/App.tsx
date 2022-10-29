@@ -118,7 +118,7 @@ function App() {
       //console.log("Connection object is:", connection);
       // get its balance
       const walletBalance = await connection.getBalance(
-        new PublicKey(publicKey1)
+        new PublicKey(publicKey)
       );
       const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
       setSolbal(solbal);
@@ -254,6 +254,7 @@ function App() {
         const response = await solana.disconnect();
         // update walletKey to be the public key
         setWalletKey(undefined);
+        setTsignature("");
         alert("Successfully Disconnected Wallet");
       } catch (err) {
         // { code: 4001, message: 'User rejected the request.' }
@@ -317,6 +318,9 @@ function App() {
   };
 
   const getRecoverAcc = async () => {
+    if(recoverkeyin === ""){
+      alert("Enter Recover Key");
+    }else{
      loadV("on");
     const extractRekey = recoverkeyin.split("-").reverse();
     const newextractRekey = [];
@@ -325,18 +329,14 @@ function App() {
     }
     const arrnew = new Uint8Array(newextractRekey);
     setKeypair(JSON.stringify(newextractRekey));
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-    const recoverBalpublickey = Keypair.fromSecretKey(arrnew).publicKey;
-      // get its balance
-      const walletBalance = await connection.getBalance(
-        new PublicKey(recoverBalpublickey)
-      );
-      const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
-      setSolbal(solbal);
-      loadV("off");
+    getWalletBalance();
+    try{
+    console.log(PublicKey.isOnCurve(Keypair.fromSecretKey(arrnew).publicKey));
     alert("Successfully Recovered Your Account Wallet");
-    setPublicKey(recoverBalpublickey);
+    setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
+    }catch(err){alert("Invalid Recover Key");}
+  }
   }
 
   // HTML code for the app
