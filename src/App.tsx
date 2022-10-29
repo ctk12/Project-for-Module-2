@@ -118,7 +118,7 @@ function App() {
       //console.log("Connection object is:", connection);
       // get its balance
       const walletBalance = await connection.getBalance(
-        new PublicKey(publicKey)
+        new PublicKey(publicKey1)
       );
       const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
       setSolbal(solbal);
