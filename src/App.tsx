@@ -110,7 +110,7 @@ function App() {
   }
 
   //get Balance
-  const getWalletBalance = async () => {
+  const getWalletBalance = async (paraPublickey:any) => {
     loadV("on");
     try {
       // Connect to the Devnet
@@ -118,7 +118,7 @@ function App() {
       //console.log("Connection object is:", connection);
       // get its balance
       const walletBalance = await connection.getBalance(
-        new PublicKey(publicKey)
+        new PublicKey(paraPublickey)
       );
       const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
       setSolbal(solbal);
@@ -157,7 +157,7 @@ function App() {
       signature: fromAirDropSignature,
     });
     // console.log("Airdrop completed for the Sender account");
-    getWalletBalance();
+    getWalletBalance(publicKey);
     alert("Successfully Airdropped 2 SOL");
     } catch (err) {
       console.log(err);
@@ -267,7 +267,7 @@ function App() {
     loadV("on");
     if (!walletKey || !publicKey) {
       let sendMsg = walletKey
-        ? "Please Create a new Solana account to transfer SOL"
+        ? "Please Create a new Solana account or recover account to transfer SOL"
         : "Please Connect to Phantom Wallet to transfer SOL";
       alert(sendMsg);
       loadV("off");
@@ -312,7 +312,7 @@ function App() {
         // console.log(
         //   `Sent 2 SOL to address ${publicKey} And Signature is ${signature}`
         // );
-        getWalletBalance();
+        getWalletBalance(publicKey);
       }
     }
   };
@@ -334,7 +334,7 @@ function App() {
     alert("Successfully Recovered Your Account Wallet");
     setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
-    getWalletBalance();
+    getWalletBalance(Keypair.fromSecretKey(arrnew).publicKey);
     }catch(err){alert("Invalid Recover Key");}
   }
   }
@@ -395,7 +395,7 @@ function App() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
-            onClick={getWalletBalance}
+            onClick={()=>getWalletBalance(publicKey)}
           >
             refresh balance
           </button>
@@ -453,7 +453,7 @@ function App() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
-            onClick={()=>{let getRe = window.confirm("Are you sure to logout. copy your recover key before logout, Otherwise you will not access to wallet again");if(getRe === true){setPublicKey("")}}}
+            onClick={()=>{let getRe = window.confirm("Are you sure to logout. copy your recover key before logout, Otherwise you will not access to wallet again");if(getRe === true){setPublicKey("");setSolbal(0);setRecoverkey("");setKeypair("");setTsignature("")}}}
           >
             Logout
           </button>
