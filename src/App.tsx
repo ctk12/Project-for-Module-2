@@ -329,12 +329,12 @@ function App() {
     }
     const arrnew = new Uint8Array(newextractRekey);
     setKeypair(JSON.stringify(newextractRekey));
-    getWalletBalance();
     try{
     console.log(PublicKey.isOnCurve(Keypair.fromSecretKey(arrnew).publicKey));
     alert("Successfully Recovered Your Account Wallet");
     setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
+    getWalletBalance();
     }catch(err){alert("Invalid Recover Key");}
   }
   }
