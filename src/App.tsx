@@ -317,6 +317,7 @@ function App() {
   };
 
   const getRecoverAcc = async () => {
+     loadV("on");
     const extractRekey = recoverkeyin.split("-").reverse();
     const newextractRekey = [];
     for(let num of extractRekey){
@@ -324,8 +325,17 @@ function App() {
     }
     const arrnew = new Uint8Array(newextractRekey);
     setKeypair(JSON.stringify(newextractRekey));
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const recoverBalpublickey = Keypair.fromSecretKey(arrnew).publicKey;
+      // get its balance
+      const walletBalance = await connection.getBalance(
+        new PublicKey(recoverBalpublickey)
+      );
+      const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
+      setSolbal(solbal);
+      loadV("off");
     alert("Successfully Recovered Your Account Wallet");
-    setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
+    setPublicKey(recoverBalpublickey);
     setRecoverkeyin("");
   }
 
