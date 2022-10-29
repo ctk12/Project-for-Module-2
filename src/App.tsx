@@ -97,6 +97,7 @@ function App() {
       setLoadmsg("No message");
     }
   };
+
    
   // recover key show
   const showRecoverkey = async () => {
@@ -113,9 +114,7 @@ function App() {
   const getWalletBalance = async (paraPublickey:any) => {
     loadV("on");
     try {
-      // Connect to the Devnet
       const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-      //console.log("Connection object is:", connection);
       // get its balance
       const walletBalance = await connection.getBalance(
         new PublicKey(paraPublickey)
@@ -132,18 +131,16 @@ function App() {
     loadV("off");
   };
 
-  const makeAirdrop = async () => {
+  const makeAirdrop = async (paraPublickey:any) => {
     loadV("on");
     try{
-    // Connect to the Devnet
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-    //console.log("Connection object is:", connection);
+     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     // Request airdrop of 2 SOL to the wallet
     //console.log("Airdropping some SOL to my wallet!");
     var airdropAmount = LAMPORTS_PER_SOL * 2;
     //console.log(airdropAmount);
     const fromAirDropSignature = await connection.requestAirdrop(
-      new PublicKey(publicKey),
+      new PublicKey(paraPublickey),
       airdropAmount
     );
     // we can use this also -> await connection.confirmTransaction(fromAirDropSignature);
@@ -166,50 +163,6 @@ function App() {
     }
   };
 
-  const airDropgetWalletBalance = async (publicKey1: any,arrayprivateKey1:any) => {
-    loadV("on");
-    try {
-      // Connect to the Devnet
-      const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-      // console.log("Connection object is:", connection);
-      // Request airdrop of 2 SOL to the wallet
-      // console.log("Airdropping some SOL to my wallet!");
-      var airdropAmount = LAMPORTS_PER_SOL * 2;
-      // console.log(airdropAmount);
-      const fromAirDropSignature = await connection.requestAirdrop(
-        new PublicKey(publicKey1),
-        airdropAmount
-      );
-      // we can use this also -> await connection.confirmTransaction(fromAirDropSignature);
-      // Latest blockhash (unique identifer of the block) of the cluster
-      let latestBlockHash = await connection.getLatestBlockhash();
-      // Confirm transaction using the last valid block height (refers to its time)
-      // to check for transaction expiration
-      await connection.confirmTransaction({
-        blockhash: latestBlockHash.blockhash,
-        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-        signature: fromAirDropSignature,
-      });
-      // console.log("Airdrop completed for the Sender account");
-      // Make a wallet (keypair) from privateKey and get its balance
-      const walletBalance = await connection.getBalance(
-        new PublicKey(publicKey1)
-      );
-      const solbal = parseInt(walletBalance) / LAMPORTS_PER_SOL;
-      setSolbal(solbal);
-      setPublicKey(publicKey1);
-      setKeypair(arrayprivateKey1);
-      // console.log(
-      //   `Wallet balance: ${parseInt(walletBalance) / LAMPORTS_PER_SOL} SOL`
-      // );
-    } catch (err) {
-      console.log(err);
-      loadV("off");
-    }
-    loadV("off");
-    alert("New Solana Account Created And Airdropped 2 SOL");
-  };
-
   // NewKeyPair
   const getNewkeypair = async () => {
     loadV("on");
@@ -217,45 +170,36 @@ function App() {
     const newPair = new Keypair();
     const privateKey = newPair._keypair.secretKey;
     const arrayprivateKey = JSON.stringify(Array.from(privateKey));
-    const publicKey = new PublicKey(newPair._keypair.publicKey).toString();
-    airDropgetWalletBalance(publicKey,arrayprivateKey);
-    // loadV("off");
-  };
-
-  const connectWallet = async () => {
-    loadV("on");
-    // @ts-ignore
-    const { solana } = window;
-
-    // checks if phantom wallet exists
-    if (solana) {
-      try {
-        // connects wallet and returns response which includes the wallet public key
-        const response = await solana.connect();
-        // console.log("wallet account ", response.publicKey.toString());
-        // update walletKey to be the public key
-        setWalletKey(response.publicKey.toString());
-        alert("Successfully Connected Wallet");
-      } catch (err) {
-        // { code: 4001, message: 'User rejected the request.' }
-      }
-    }
+    const extractpublicKey = new PublicKey(newPair._keypair.publicKey).toString();
+    alert("New Solana Account Created");
+    setPublicKey(extractpublicKey);
+    setKeypair(arrayprivateKey);
+    await makeAirdrop(extractpublicKey)
+    await getWalletBalance(extractpublicKey);
     loadV("off");
   };
-  const disconnectWallet = async () => {
+
+  const connectWallet = async (userevent:any) => {
     loadV("on");
     // @ts-ignore
     const { solana } = window;
-
     // checks if phantom wallet exists
     if (solana) {
       try {
         // connects wallet and returns response which includes the wallet public key
-        const response = await solana.disconnect();
         // update walletKey to be the public key
-        setWalletKey(undefined);
-        setTsignature("");
-        alert("Successfully Disconnected Wallet");
+        if(userevent.target.innerText === "Connect to Phantom Wallet"){
+        const response = await solana.connect();
+        userevent.target.innerText = "Disconnect Wallet";
+        setWalletKey(response.publicKey.toString());
+        alert("Successfully Connected Wallet");
+        }else{
+          const response = await solana.disconnect();
+          userevent.target.innerText = "Connect to Phantom Wallet";
+          setWalletKey(undefined);
+          setTsignature("");
+          alert("Successfully Disconnected Wallet");
+        }
       } catch (err) {
         // { code: 4001, message: 'User rejected the request.' }
       }
@@ -277,7 +221,6 @@ function App() {
       // Exact the public and private key from the keypair
       const arrnew = new Uint8Array(keyFromls);
       // Get Keypair from Secret Key
-      //console.log(arrnew);
       var from = Keypair.fromSecretKey(arrnew);
       // Send money from "from" wallet and into "to" wallet
       if (solbal <= 0) {
@@ -334,10 +277,11 @@ function App() {
     alert("Successfully Recovered Your Account Wallet");
     setPublicKey(Keypair.fromSecretKey(arrnew).publicKey);
     setRecoverkeyin("");
+    setShowrecovertext("Show recover key");
     getWalletBalance(Keypair.fromSecretKey(arrnew).publicKey);
     }catch(err){alert("Invalid Recover Key");}
   }
-  }
+  };
 
   // HTML code for the app
   return (
@@ -439,7 +383,7 @@ function App() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
-            onClick={makeAirdrop}
+            onClick={()=>makeAirdrop(publicKey)}
           >
             Airdrop 2 SOL
           </button>
@@ -453,7 +397,7 @@ function App() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
-            onClick={()=>{let getRe = window.confirm("Are you sure to logout. copy your recover key before logout, Otherwise you will not access to wallet again");if(getRe === true){setPublicKey("");setSolbal(0);setRecoverkey("");setKeypair("");setTsignature("")}}}
+            onClick={()=>{let getRe = window.confirm("Are you sure to logout. copy your recover key before logout, Otherwise you will not access to wallet again");if(getRe === true){setPublicKey("");setSolbal(0);setRecoverkey("*****");setKeypair("");setTsignature("")}}}
           >
             Logout
           </button>
@@ -462,21 +406,7 @@ function App() {
         <div className="App-header1">Message Box: {loadmsg}</div>
         <br />
         <h5>Connect to Phantom Wallet</h5>
-        {provider && walletKey && (
-          <button
-            style={{
-              fontSize: "14px",
-              padding: "14px",
-              fontWeight: "bold",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            onClick={disconnectWallet}
-          >
-            Disconnect Wallet
-          </button>
-        )}
-        {provider && !walletKey && (
+        {provider && (
           <button
             style={{
               fontSize: "16px",
@@ -485,7 +415,7 @@ function App() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
-            onClick={connectWallet}
+            onClick={(event)=>connectWallet(event)}
           >
             Connect to Phantom Wallet
           </button>
